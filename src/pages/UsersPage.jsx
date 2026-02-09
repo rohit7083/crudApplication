@@ -1,30 +1,56 @@
-const [error, setError] = useState(null);
+import { useEffect, useState } from "react";
+import {
+    createUser,
+    deleteUser,
+    getUsers,
+    updateUser,
+} from "../api/users";
+import UserForm from "../components/UserForm";
+import UserTable from "../components/UserTable";
 
-const loadUsers = async () => {
-  setLoading(true);
-  setError(null);
+export default function Users() {
+  const [users, setUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  try {
-    const data = await getUsers();
-    setUsers(data);
-  } catch (err) {
-    setError(err.message);
-  } finally {
+  const fetchUsers = async () => {
+    const res = await getUsers();
+    setUsers(res.data);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const handleSubmit = async (data) => {
+    setLoading(true);
+    if (editingUser) {
+      await updateUser(editingUser.id, data);
+      setEditingUser(null);
+    } else {
+      await createUser(data);
+    }
     setLoading(false);
-  }
-};
+    fetchUsers();
+  };
 
-const handleSave = async (data) => {
-  setError(null);
+  const handleDelete = async (id) => {
+    await deleteUser(id);
+    fetchUsers();
+  };
 
-  try {
-    editingUser
-      ? await updateUser(editingUser.id, data)
-      : await createUser(data);
-
-    setEditingUser(null);
-    loadUsers();
-  } catch (err) {
-    setError(err.message);
-  }
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <UserForm
+        onSubmit={handleSubmit}
+        initialData={editingUser}
+        loading={loading}
+      />
+      <UserTable
+        users={users}
+        onEdit={setEditingUser}
+        onDelete={handleDelete}
+      />
+    </div>
+  );
 }
