@@ -14,7 +14,7 @@ export default function UserTable({ users, onEdit, onDelete }) {
         </tr>
       </thead>
       <tbody>
-        {users?.map((user) => (
+        {users.map((user) => (
           <tr key={user.id}>
             {userSchema.map((field) => (
               <td key={field.name} className="border p-2">

@@ -1,4 +1,13 @@
 {
+  "users": [
+    {
+      "firstName": "Rohit",
+      "lastName": "Sonawane",
+      "phone": "4558374585",
+      "email": "rohitsonawane889@gmail.com",
+      "id": 1
+    }
+  ],
   "posts": [
     {
       "id": 1,

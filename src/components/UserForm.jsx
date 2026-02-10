@@ -1,50 +1,54 @@
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { userSchema } from "../config/userSchema";
+import InputField from "./InputField";
 
 export default function UserForm({ onSubmit, initialData, loading }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
-  } = useForm({
-    defaultValues: initialData || {},
-  });
+    formState: { errors },
+  } = useForm();
+
+  useEffect(() => {
+    if (initialData) {
+      reset(initialData);
+    } else {
+      reset({});
+    }
+  }, [initialData, reset]);
+
+  const handleFormSubmit = async (data) => {
+    await onSubmit(data);
+    if (!initialData) {
+      reset({});
+    }
+  };
 
   return (
     <form
-      onSubmit={handleSubmit((data) => {
-        onSubmit(data);
-        reset();
-      })}
+      onSubmit={handleSubmit(handleFormSubmit)}
       className="bg-white p-6 rounded shadow space-y-4"
     >
+      <h2 className="text-xl font-bold mb-4">
+        {initialData ? "Update User" : "Create User"}
+      </h2>
+
       {userSchema.map((field) => (
-        <div key={field.name}>
-          <label className="block text-sm font-medium">
-            {field.label}
-          </label>
-          <input
-            type={field.type}
-            {...register(field.name, {
-              required: field.required,
-              pattern: field.pattern,
-            })}
-            className="w-full border px-3 py-2 rounded"
-          />
-          {errors[field.name] && (
-            <p className="text-red-500 text-sm">
-              {field.label} is invalid
-            </p>
-          )}
-        </div>
+        <InputField
+          key={field.name}
+          field={field}
+          register={register}
+          error={errors[field.name]}
+        />
       ))}
 
       <button
         disabled={loading}
         className="bg-blue-600 text-white px-4 py-2 rounded"
       >
-        {loading ? "Saving..." : "Submit"}
+        {loading ? "Saving..." : initialData ? "Update" : "Create"}
       </button>
     </form>
   );
